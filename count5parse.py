@@ -25,9 +25,9 @@ def counter5parse(input):
     :param input: a string path to the raw JSON file
     """
 
-    f = open(input)
+    #f = open(input)
 
-    count5 = json.load(f)
+    count5 = json.load(open(input, encoding='utf-8'))
 
     df = pd.json_normalize(count5)
 
@@ -47,10 +47,31 @@ def counter5parse(input):
 
         oneRow = dict(row)
 
-        output = [{'Platform': oneRow['Platform'],
-                    'Title':   oneRow['Title'],
-                    'Publisher': oneRow['Publisher'],
-                    'DataType': oneRow['Data_Type']
+        try:
+            platform = oneRow['Platform']
+        except: 
+            platform = 'NA'
+
+        try:
+            title = oneRow['Title']
+        except: 
+            title = 'NA'
+
+        try: 
+            publisher = oneRow['Publisher']
+        except:
+            publisher = 'NA'
+        
+        try: 
+            datatype = oneRow['Data_Type']
+        except:
+            datatype = 'NA'
+        
+
+        output = [{'Platform': platform, 
+                    'Title':   title,
+                    'Publisher': publisher,
+                    'DataType': datatype
                     }]
 
         outDF = pd.DataFrame(output)
@@ -59,7 +80,7 @@ def counter5parse(input):
         metricDF = pd.DataFrame()
 
         for i in range(0, len(oneRow['Performance'])):
-            date = date.append(pd.DataFrame(pd.Series(oneRow['Performance'][0]['Period'])).T)
+            date = date.append(pd.DataFrame(pd.Series(oneRow['Performance'][i]['Period'])).T)
 
             metric = oneRow['Performance'][i]['Instance']
             metricMod = dict(d.values() for d in metric)
@@ -85,7 +106,3 @@ def counter5parse(input):
     
     
 
-if __name__ == "__main__":
-    out = counter5parse('rawCat5.json')
-
-    out.to_csv('output.csv', index=False, header = True)
